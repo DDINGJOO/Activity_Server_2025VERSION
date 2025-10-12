@@ -9,11 +9,9 @@ import com.teambind.activityserver.domain.board.repository.UserBoardActivitiesCo
 import com.teambind.activityserver.domain.board.repository.UserCommentRepository;
 import com.teambind.activityserver.messaging.event.CommentCreatedEvent;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @RequiredArgsConstructor
 @Component
 public class CommentEventConsumer {
@@ -28,8 +26,8 @@ public class CommentEventConsumer {
 		
 		// 1번의 조회로 존재 여부와 데이터 취득을 동시에
 		userCommentRepository.findById(key).ifPresentOrElse(
-				existing -> log.info("Comment already exists for userId: {}, articleId: {}",
-						request.getWriterId(), request.getArticleId()),
+				existing -> {
+				},
 				() -> {
 					userCommentRepository.save(new UserComment(request.getCreatedAt(), key));
 					// Dirty Checking 활용 (save 생략 가능)
