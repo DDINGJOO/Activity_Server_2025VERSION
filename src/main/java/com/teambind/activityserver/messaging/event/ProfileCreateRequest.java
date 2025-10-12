@@ -1,5 +1,4 @@
-package com.teambind.activityserver.event.events;
-
+package com.teambind.activityserver.messaging.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +12,4 @@ import lombok.Setter;
 public class ProfileCreateRequest {
 	private String userId;
 	private String provider;
-	
 }
-
