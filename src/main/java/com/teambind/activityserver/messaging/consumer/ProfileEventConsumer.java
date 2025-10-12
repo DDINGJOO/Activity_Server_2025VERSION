@@ -1,5 +1,6 @@
 package com.teambind.activityserver.messaging.consumer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teambind.activityserver.domain.board.entity.UserBoardActivitiesCount;
 import com.teambind.activityserver.domain.board.repository.UserBoardActivitiesCountRepository;
@@ -17,14 +18,8 @@ public class ProfileEventConsumer {
 	private final UserBoardActivitiesCountRepository userBoardActivitiesCountRepository;
 	
 	@KafkaListener(topics = "profile-create-request", groupId = "activity-consumer-group")
-	public void createUserProfile(String message) {
-		log.info("Received message: {}", message);
-		try {
-			ProfileCreateRequest request = objectMapper.readValue(message, ProfileCreateRequest.class);
-			userBoardActivitiesCountRepository.save(new UserBoardActivitiesCount(request.getUserId()));
-			log.info("Successfully processed profile-create-request , userId : {}", request.getUserId());
-		} catch (Exception e) {
-			log.error("Failed to deserialize or process profile-create-request message: {}", message, e);
-		}
+	public void createUserProfile(String message) throws JsonProcessingException {
+		ProfileCreateRequest request = objectMapper.readValue(message, ProfileCreateRequest.class);
+		userBoardActivitiesCountRepository.save(new UserBoardActivitiesCount(request.getUserId()));
 	}
 }
