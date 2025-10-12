@@ -1,6 +1,8 @@
 package com.teambind.activityserver.event.consume;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.teambind.activityserver.domain.board.entity.UserBoardActivitiesCount;
+import com.teambind.activityserver.domain.board.repository.UserBoardActivitiesCountRepository;
 import com.teambind.activityserver.event.events.ProfileCreateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class boardConsumeHandler {
 	private final ObjectMapper objectMapper;
+	private final UserBoardActivitiesCountRepository userBoardActivitiesCountRepository;
 	
 	
 	@KafkaListener(topics = "profile-create-request", groupId = "profile-consumer-group")
@@ -21,6 +24,8 @@ public class boardConsumeHandler {
 		try {
 			
 			ProfileCreateRequest request = objectMapper.readValue(message, ProfileCreateRequest.class);
+			userBoardActivitiesCountRepository.save(new UserBoardActivitiesCount(request.getUserId()));
+			log.info("Successfully processed profile-create-request , userId : {}", request.getUserId());
 			
 		} catch (Exception e) {
 			// 역직렬화 실패 또는 처리 중 오류 발생 시 로깅/대응
