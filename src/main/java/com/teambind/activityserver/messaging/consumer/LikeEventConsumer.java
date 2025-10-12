@@ -9,11 +9,9 @@ import com.teambind.activityserver.domain.board.repository.UserBoardActivitiesCo
 import com.teambind.activityserver.domain.board.repository.UserLikeRepository;
 import com.teambind.activityserver.messaging.event.LikeCreatedEvent;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @RequiredArgsConstructor
 @Component
 public class LikeEventConsumer {
@@ -28,8 +26,8 @@ public class LikeEventConsumer {
 		
 		// 1번의 조회로 존재 여부와 데이터 취득을 동시에
 		userLikeRepository.findById(key).ifPresentOrElse(
-				existing -> log.info("Like already exists for likerId: {}, articleId: {}",
-						request.getLikerId(), request.getArticleId()),
+				existing -> {
+				},
 				() -> {
 					userLikeRepository.save(new UserLike(key, request.getCreatedAt()));
 					// Dirty Checking 활용 (save 생략 가능)
