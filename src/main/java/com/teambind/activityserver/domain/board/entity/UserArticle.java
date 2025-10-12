@@ -21,6 +21,7 @@ public class UserArticle {
 	@EmbeddedId
 	private UserArticleKey id;
 	
+	
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 }

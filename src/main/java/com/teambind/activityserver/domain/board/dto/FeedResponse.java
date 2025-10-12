@@ -3,19 +3,33 @@ package com.teambind.activityserver.domain.board.dto;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 피드 응답 DTO (도메인 레벨)
+ * - 초기 요청(총계)에서는 totals + isOwner 사용
+ * - 카테고리 요청(페이징)에서는 articleIds + nextCursor 사용
+ * - articleId는 문자열(String) 타입입니다.
+ */
 public class FeedResponse {
-	// category -> total count (only included categories)
+	// 카테고리별 총합 (초기 요청시 사용)
 	private Map<String, Long> totals;
-	// merged article ids in requested order
-	private List<Long> articleIds;
-	// next cursor string (null if no more)
+	// 카테고리 페이징 결과: articleId 목록 (String)
+	private List<String> articleIds;
+	// 다음 페이지를 위한 커서 (articleId 문자열)
 	private String nextCursor;
+	// viewer가 target과 동일한지 여부 (mini-feed 여부)
+	private boolean isOwner;
 	
 	public FeedResponse() {
 	}
 	
-	public FeedResponse(Map<String, Long> totals, List<Long> articleIds, String nextCursor) {
+	// 초기 counts 응답 생성자
+	public FeedResponse(Map<String, Long> totals, boolean isOwner) {
 		this.totals = totals;
+		this.isOwner = isOwner;
+	}
+	
+	// 카테고리 페이징 응답 생성자
+	public FeedResponse(List<String> articleIds, String nextCursor) {
 		this.articleIds = articleIds;
 		this.nextCursor = nextCursor;
 	}
@@ -28,11 +42,11 @@ public class FeedResponse {
 		this.totals = totals;
 	}
 	
-	public List<Long> getArticleIds() {
+	public List<String> getArticleIds() {
 		return articleIds;
 	}
 	
-	public void setArticleIds(List<Long> articleIds) {
+	public void setArticleIds(List<String> articleIds) {
 		this.articleIds = articleIds;
 	}
 	
@@ -42,5 +56,13 @@ public class FeedResponse {
 	
 	public void setNextCursor(String nextCursor) {
 		this.nextCursor = nextCursor;
+	}
+	
+	public boolean isOwner() {
+		return isOwner;
+	}
+	
+	public void setOwner(boolean owner) {
+		isOwner = owner;
 	}
 }

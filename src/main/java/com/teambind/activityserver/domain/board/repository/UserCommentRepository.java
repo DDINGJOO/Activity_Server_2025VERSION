@@ -14,26 +14,26 @@ import java.util.List;
 public interface UserCommentRepository extends JpaRepository<UserComment, UserArticleKey> {
 	
 	// Descending (newest first) cursor query for comments by user (writer)
-	@Query("select new com.teambind.activityserver.messaging.dto.ArticleCursorDto(c.id.articleId, c.createdAt) " +
+	@Query("select new com.teambind.activityserver.domain.board.dto.ArticleCursorDto(c.id.articleId, c.createdAt) " +
 			"from UserComment c " +
 			"where c.id.userId = :userId " +
 			"and (:cursorCreatedAt is null or (c.createdAt < :cursorCreatedAt or (c.createdAt = :cursorCreatedAt and c.id.articleId < :cursorArticleId))) " +
 			"order by c.createdAt desc, c.id.articleId desc")
-	List<ArticleCursorDto> fetchDescByUserIdWithCursor(@Param("userId") Long userId,
+	List<ArticleCursorDto> fetchDescByUserIdWithCursor(@Param("userId") String userId,
 	                                                   @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
-	                                                   @Param("cursorArticleId") Long cursorArticleId,
+	                                                   @Param("cursorArticleId") String cursorArticleId,
 	                                                   Pageable pageable);
 	
 	// Ascending (oldest first) cursor query for comments by user (writer)
-	@Query("select new com.teambind.activityserver.messaging.dto.ArticleCursorDto(c.id.articleId, c.createdAt) " +
+	@Query("select new com.teambind.activityserver.domain.board.dto.ArticleCursorDto(c.id.articleId, c.createdAt) " +
 			"from UserComment c " +
 			"where c.id.userId = :userId " +
 			"and (:cursorCreatedAt is null or (c.createdAt > :cursorCreatedAt or (c.createdAt = :cursorCreatedAt and c.id.articleId > :cursorArticleId))) " +
 			"order by c.createdAt asc, c.id.articleId asc")
-	List<ArticleCursorDto> fetchAscByUserIdWithCursor(@Param("userId") Long userId,
+	List<ArticleCursorDto> fetchAscByUserIdWithCursor(@Param("userId") String userId,
 	                                                  @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
-	                                                  @Param("cursorArticleId") Long cursorArticleId,
+	                                                  @Param("cursorArticleId") String cursorArticleId,
 	                                                  Pageable pageable);
 	
-	long countByIdUserId(Long userId);
+	long countByIdUserId(String userId);
 }

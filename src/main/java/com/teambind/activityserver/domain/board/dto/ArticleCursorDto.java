@@ -3,16 +3,20 @@ package com.teambind.activityserver.domain.board.dto;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+/**
+ * 도메인 레벨 DTO: articleId와 createdAt을 함께 전달하기 위한 객체
+ * articleId는 문자열 타입(String)으로 처리합니다.
+ */
 public class ArticleCursorDto {
-	private final Long articleId;
+	private final String articleId;
 	private final LocalDateTime createdAt;
 	
-	public ArticleCursorDto(Long articleId, LocalDateTime createdAt) {
+	public ArticleCursorDto(String articleId, LocalDateTime createdAt) {
 		this.articleId = articleId;
 		this.createdAt = createdAt;
 	}
 	
-	public Long getArticleId() {
+	public String getArticleId() {
 		return articleId;
 	}
 	
