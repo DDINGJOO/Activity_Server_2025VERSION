@@ -36,4 +36,13 @@ public interface UserLikeRepository extends JpaRepository<UserLike, UserArticleK
 	                                                  Pageable pageable);
 	
 	long countByIdUserId(String userId);
+	
+	// 아티클 ID로 모든 좋아요 조회 (동기화용)
+	List<UserLike> findAllByIdArticleId(String articleId);
+	
+	// 미동기화된 아티클 ID 조회 (최근 24시간)
+	@Query("SELECT DISTINCT l.id.articleId FROM UserLike l " +
+			"WHERE l.articleSynced = false " +
+			"AND l.createdAt > :since")
+	List<String> findUnsyncedArticleIds(@Param("since") LocalDateTime since);
 }

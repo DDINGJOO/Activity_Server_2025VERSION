@@ -36,4 +36,13 @@ public interface UserCommentRepository extends JpaRepository<UserComment, UserAr
 	                                                  Pageable pageable);
 	
 	long countByIdUserId(String userId);
+	
+	// 아티클 ID로 모든 댓글 조회 (동기화용)
+	List<UserComment> findAllByIdArticleId(String articleId);
+	
+	// 미동기화된 아티클 ID 조회 (최근 24시간)
+	@Query("SELECT DISTINCT c.id.articleId FROM UserComment c " +
+			"WHERE c.articleSynced = false " +
+			"AND c.createdAt > :since")
+	List<String> findUnsyncedArticleIds(@Param("since") LocalDateTime since);
 }
