@@ -115,8 +115,8 @@ public class FeedDomainService {
 		
 		// 정렬 및 중복 제거 (안정성 확보)
 		Comparator<ArticleCursorDto> comparator = Comparator
-				.comparing(ArticleCursorDto::getCreatedAt)
-				.thenComparing(ArticleCursorDto::getArticleId);
+				.comparing(ArticleCursorDto::createdAt)
+				.thenComparing(ArticleCursorDto::articleId);
 		if (newest) comparator = comparator.reversed();
 		
 		List<ArticleCursorDto> sorted = new ArrayList<>(fetched);
@@ -124,7 +124,7 @@ public class FeedDomainService {
 		
 		LinkedHashMap<String, ArticleCursorDto> dedup = new LinkedHashMap<>();
 		for (ArticleCursorDto dto : sorted) {
-			dedup.putIfAbsent(dto.getArticleId(), dto);
+			dedup.putIfAbsent(dto.articleId(), dto);
 		}
 		List<ArticleCursorDto> dedupList = new ArrayList<>(dedup.values());
 		
@@ -134,10 +134,10 @@ public class FeedDomainService {
 		String nextCursor = null;
 		if (hasMore && !pageList.isEmpty()) {
 			ArticleCursorDto last = pageList.get(pageList.size() - 1);
-			nextCursor = encodeCursor(last.getArticleId());
+			nextCursor = encodeCursor(last.articleId());
 		}
 		
-		List<String> articleIds = pageList.stream().map(ArticleCursorDto::getArticleId).toList();
+		List<String> articleIds = pageList.stream().map(ArticleCursorDto::articleId).toList();
 		return new CategoryPage(articleIds, nextCursor);
 	}
 	
