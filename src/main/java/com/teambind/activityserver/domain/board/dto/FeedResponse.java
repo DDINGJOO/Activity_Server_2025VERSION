@@ -1,5 +1,8 @@
 package com.teambind.activityserver.domain.board.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +12,8 @@ import java.util.Map;
  * - 카테고리 요청(페이징)에서는 articleIds + nextCursor 사용
  * - articleId는 문자열(String) 타입입니다.
  */
+@Setter
+@Getter
 public class FeedResponse {
 	// 카테고리별 총합 (초기 요청시 사용)
 	private Map<String, Long> totals;
@@ -34,35 +39,4 @@ public class FeedResponse {
 		this.nextCursor = nextCursor;
 	}
 	
-	public Map<String, Long> getTotals() {
-		return totals;
-	}
-	
-	public void setTotals(Map<String, Long> totals) {
-		this.totals = totals;
-	}
-	
-	public List<String> getArticleIds() {
-		return articleIds;
-	}
-	
-	public void setArticleIds(List<String> articleIds) {
-		this.articleIds = articleIds;
-	}
-	
-	public String getNextCursor() {
-		return nextCursor;
-	}
-	
-	public void setNextCursor(String nextCursor) {
-		this.nextCursor = nextCursor;
-	}
-	
-	public boolean isOwner() {
-		return isOwner;
-	}
-	
-	public void setOwner(boolean owner) {
-		isOwner = owner;
-	}
 }

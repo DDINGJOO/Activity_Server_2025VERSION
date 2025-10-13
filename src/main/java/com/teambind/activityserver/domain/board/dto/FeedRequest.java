@@ -1,11 +1,16 @@
 package com.teambind.activityserver.domain.board.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
 /**
  * 피드 관련 요청 DTO (도메인 레벨)
  * - viewerId, targetUserId는 문자열(String) 타입으로 처리합니다.
  */
+@Getter
+@Setter
 public class FeedRequest {
 	// 요청하는 사용자(조회 시의 주체)
 	private String viewerId;
@@ -20,51 +25,5 @@ public class FeedRequest {
 	// 정렬: "newest" (기본) 또는 "oldest"
 	private String sort = "newest";
 	
-	public String getViewerId() {
-		return viewerId;
-	}
 	
-	public void setViewerId(String viewerId) {
-		this.viewerId = viewerId;
-	}
-	
-	public String getTargetUserId() {
-		return targetUserId;
-	}
-	
-	public void setTargetUserId(String targetUserId) {
-		this.targetUserId = targetUserId;
-	}
-	
-	public List<String> getCategories() {
-		return categories;
-	}
-	
-	public void setCategories(List<String> categories) {
-		this.categories = categories;
-	}
-	
-	public String getCursor() {
-		return cursor;
-	}
-	
-	public void setCursor(String cursor) {
-		this.cursor = cursor;
-	}
-	
-	public int getSize() {
-		return size;
-	}
-	
-	public void setSize(int size) {
-		this.size = size;
-	}
-	
-	public String getSort() {
-		return sort;
-	}
-	
-	public void setSort(String sort) {
-		this.sort = sort;
-	}
 }

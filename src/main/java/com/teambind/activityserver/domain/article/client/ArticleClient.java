@@ -18,7 +18,7 @@ import java.util.List;
 public class ArticleClient {
 	private final WebClient webClient;
 	
-	@Value("${article.server.url:https://teambind.co.kr:9300}")
+	@Value("${article.server.url}")
 	private String articleServerUrl;
 	
 	/**
