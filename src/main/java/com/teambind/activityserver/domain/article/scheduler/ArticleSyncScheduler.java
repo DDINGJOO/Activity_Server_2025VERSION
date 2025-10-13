@@ -30,10 +30,12 @@ public class ArticleSyncScheduler {
 	private final UserCommentRepository userCommentRepository;
 	private final UserLikeRepository userLikeRepository;
 	
+	private int emptyCheckCounter = 0; // DB 조회 횟수 카운터
+	
 	/**
 	 * 1분마다 실행되는 아티클 동기화 배치
 	 * - Redis 큐에서 미동기화 아티클 ID 조회 (우선)
-	 * - Redis 비었으면 DB에서 최근 24시간 미동기화 데이터 조회
+	 * - Redis 비었고, 10분마다 DB 조회 (불필요한 쿼리 방지)
 	 * - 아티클 서버에서 배치 조회 후 업데이트
 	 */
 	@Scheduled(fixedRate = 60000) // 1분마다
@@ -43,10 +45,21 @@ public class ArticleSyncScheduler {
 			// 1단계: Redis 큐에서 아티클 ID 조회
 			Set<String> redisArticleIds = articleSyncQueue.popAll();
 			
-			// 2단계: Redis 비었으면 DB에서 미동기화 아티클 조회
+			// 2단계: Redis 비었고, 10분마다만 DB 조회 (매 실행마다 조회하지 않음)
 			Set<String> dbArticleIds = Collections.emptySet();
 			if (redisArticleIds.isEmpty()) {
-				dbArticleIds = findUnsyncedArticleIdsFromDB();
+				emptyCheckCounter++;
+				// 60분(60회)마다만 DB 조회 - 새벽에 불필요한 쿼리 방지
+				if (emptyCheckCounter >= 60) {
+					dbArticleIds = findUnsyncedArticleIdsFromDB();
+					emptyCheckCounter = 0; // 카운터 리셋
+				} else {
+					log.trace("Redis 비어있음, DB 조회 스킵 ({}번째)", emptyCheckCounter);
+					return; // DB 조회 없이 종료
+				}
+			} else {
+				// Redis에 데이터 있으면 카운터 리셋
+				emptyCheckCounter = 0;
 			}
 			
 			// 합치기
