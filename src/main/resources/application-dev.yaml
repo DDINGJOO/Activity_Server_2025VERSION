@@ -46,10 +46,9 @@ spring:
     init:
       mode: never
 
-# 아티클 서버 설정
 article:
   server:
-    url: https://teambind.co.kr:9300
+    url: ${article_bucket_url}
 
 
 
