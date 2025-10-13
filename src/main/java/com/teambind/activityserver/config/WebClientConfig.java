@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 	
-	@Value("${article.server.url:https://teambind.co.kr:9300}")
+	@Value("${article.server.url}")
 	private String articleServerUrl;
 	
 	@Bean
