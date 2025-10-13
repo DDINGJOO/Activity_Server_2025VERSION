@@ -1,9 +1,6 @@
 package com.teambind.activityserver.messaging.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -11,8 +8,12 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ArticleCreatedEvent {
-	private String writerId;
 	private String articleId;
+	private String writerId;
+	private Long version;
+	private String title;
 	private LocalDateTime createdAt;
+	
 }

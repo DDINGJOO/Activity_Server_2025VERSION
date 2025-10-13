@@ -3,6 +3,7 @@ package com.teambind.activityserver.domain.board.service;
 import com.teambind.activityserver.domain.board.dto.ArticleCursorDto;
 import com.teambind.activityserver.domain.board.dto.CategoryPage;
 import com.teambind.activityserver.domain.board.entity.UserArticle;
+import com.teambind.activityserver.domain.board.entity.UserBoardActivitiesCount;
 import com.teambind.activityserver.domain.board.entity.key.UserArticleKey;
 import com.teambind.activityserver.domain.board.repository.UserArticleRepository;
 import com.teambind.activityserver.domain.board.repository.UserBoardActivitiesCountRepository;
@@ -47,7 +48,7 @@ public class FeedDomainService {
 		Map<String, Long> totals = new HashMap<>();
 		if (targetUserId == null) return totals;
 		
-		Optional<com.teambind.activityserver.domain.board.entity.UserBoardActivitiesCount> aggOpt =
+		Optional<UserBoardActivitiesCount> aggOpt =
 				userBoardActivitiesCountRepository.findById(targetUserId);
 		
 		for (String cat : categories) {

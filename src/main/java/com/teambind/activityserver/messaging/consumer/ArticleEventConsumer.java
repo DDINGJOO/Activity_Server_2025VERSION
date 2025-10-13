@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Component
 public class ArticleEventConsumer {
@@ -24,15 +26,17 @@ public class ArticleEventConsumer {
 		ArticleCreatedEvent request = objectMapper.readValue(message, ArticleCreatedEvent.class);
 		UserArticleKey key = new UserArticleKey(request.getWriterId(), request.getArticleId());
 		
-		userArticleRepository.findById(key).ifPresentOrElse(
-				existing -> {
-				},
-				() -> {
-					userArticleRepository.save(new UserArticle(key, request.getCreatedAt()));
-					userBoardActivitiesCountRepository.findById(request.getWriterId())
-							.ifPresent(UserBoardActivitiesCount::increaseArticleCount);
-				}
-		);
+		Optional<UserArticle> article = userArticleRepository.findById(key);
+		if (article.isEmpty()) {
+			userArticleRepository.save(new UserArticle(key, request.getTitle(), request.getVersion(), request.getCreatedAt()));
+			userBoardActivitiesCountRepository.findById(request.getWriterId()).ifPresent(UserBoardActivitiesCount::increaseArticleCount);
+		} else {
+			if (article.get().getVersion() < request.getVersion()) {
+				userArticleRepository.save(new UserArticle(key, request.getTitle(), request.getVersion(), request.getCreatedAt()));
+			}
+		}
+		
+		
 	}
 	
 	@KafkaListener(topics = "article-deleted", groupId = "activity-consumer-group")

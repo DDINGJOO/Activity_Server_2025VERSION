@@ -29,7 +29,7 @@ public class LikeEventConsumer {
 				existing -> {
 				},
 				() -> {
-					userLikeRepository.save(new UserLike(key, request.getCreatedAt()));
+					userLikeRepository.save(new UserLike(key));
 					// Dirty Checking 활용 (save 생략 가능)
 					userBoardActivitiesCountRepository.findById(request.getLikerId())
 							.ifPresent(UserBoardActivitiesCount::increaseLikeCount);

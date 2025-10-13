@@ -19,8 +19,20 @@ import java.time.LocalDateTime;
 @Setter
 public class UserComment {
 	
-	@Column(name = "created_at")
-	LocalDateTime createdAt;
 	@EmbeddedId
 	private UserArticleKey id;
+	
+	
+	@Column(name = "title")
+	private String title;
+	
+	@Column(name = "version")
+	private int version;
+	@Column(name = "created_at")
+	private LocalDateTime createdAt;
+	
+	public UserComment(UserArticleKey id) {
+		this.id = id;
+		this.version = -0;
+	}
 }

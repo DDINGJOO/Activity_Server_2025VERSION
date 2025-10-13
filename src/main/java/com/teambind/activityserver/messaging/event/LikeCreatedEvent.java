@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,5 +12,4 @@ import java.time.LocalDateTime;
 public class LikeCreatedEvent {
 	private String likerId;
 	private String articleId;
-	private LocalDateTime createdAt;
 }

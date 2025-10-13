@@ -22,6 +22,17 @@ public class UserArticle {
 	private UserArticleKey id;
 	
 	
+	@Column(name = "title")
+	private String title;
+	
+	@Column(name = "version")
+	private int version;
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
+	
+	public UserArticle(UserArticleKey key, String title, Long version, LocalDateTime createdAt) {
+		this.id = key;
+		this.version = version.intValue();
+		this.createdAt = createdAt;
+	}
 }

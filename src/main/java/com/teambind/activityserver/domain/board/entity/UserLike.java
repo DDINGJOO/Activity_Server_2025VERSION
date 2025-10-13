@@ -21,6 +21,17 @@ public class UserLike {
 	@EmbeddedId
 	private UserArticleKey id;
 	
+	
+	@Column(name = "title")
+	private String title;
+	
+	@Column(name = "version")
+	private int version;
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
+	
+	public UserLike(UserArticleKey id) {
+		this.id = id;
+		this.version = -0;
+	}
 }

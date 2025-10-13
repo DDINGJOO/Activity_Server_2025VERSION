@@ -29,7 +29,7 @@ public class CommentEventConsumer {
 				existing -> {
 				},
 				() -> {
-					userCommentRepository.save(new UserComment(request.getCreatedAt(), key));
+					userCommentRepository.save(new UserComment(key));
 					// Dirty Checking 활용 (save 생략 가능)
 					userBoardActivitiesCountRepository.findById(request.getWriterId())
 							.ifPresent(UserBoardActivitiesCount::increaseCommentCount);
