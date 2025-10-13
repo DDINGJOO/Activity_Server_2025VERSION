@@ -45,3 +45,18 @@ CREATE TABLE IF NOT EXISTS user_like
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
+
+
+ALTER TABLE user_comment
+    ADD COLUMN article_synced BOOLEAN DEFAULT FALSE;
+
+-- user_like 테이블에 컬럼 추가
+ALTER TABLE user_like
+    ADD COLUMN article_synced BOOLEAN DEFAULT FALSE;
+
+-- 인덱스 추가 (성능 최적화)
+CREATE INDEX idx_comment_sync_status
+    ON user_comment (article_synced, created_at);
+
+CREATE INDEX idx_like_sync_status
+    ON user_like (article_synced, created_at);
