@@ -24,14 +24,19 @@ public class UserLike {
 	
 	@Column(name = "title")
 	private String title;
-	
+
 	@Column(name = "version")
 	private int version;
+
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 	
+	@Column(name = "article_synced")
+	private boolean articleSynced = false;
+
 	public UserLike(UserArticleKey id) {
 		this.id = id;
-		this.version = -0;
+		this.version = 0;
+		this.articleSynced = false;
 	}
 }

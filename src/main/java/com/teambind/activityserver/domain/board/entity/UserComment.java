@@ -31,8 +31,12 @@ public class UserComment {
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 	
+	@Column(name = "article_synced")
+	private boolean articleSynced = false;
+	
 	public UserComment(UserArticleKey id) {
 		this.id = id;
-		this.version = -0;
+		this.version = 0;
+		this.articleSynced = false;
 	}
 }
