@@ -11,6 +11,7 @@ import com.teambind.activityserver.messaging.event.ArticleCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -22,6 +23,7 @@ public class ArticleEventConsumer {
 	private final UserArticleRepository userArticleRepository;
 	
 	@KafkaListener(topics = "article-created", groupId = "activity-consumer-group")
+	@Transactional
 	public void increaseArticleRequest(String message) throws JsonProcessingException {
 		ArticleCreatedEvent request = objectMapper.readValue(message, ArticleCreatedEvent.class);
 		UserArticleKey key = new UserArticleKey(request.getWriterId(), request.getArticleId());
