@@ -13,7 +13,7 @@ import java.util.List;
 public interface UserArticleRepository extends JpaRepository<UserArticle, UserArticleKey> {
 	
 	// Descending (newest first) cursor query
-	@Query("select new ArticleCursorDto(a.id.articleId, a.createdAt) " +
+	@Query("select new com.teambind.activityserver.domain.board.dto.ArticleCursorDto(a.id.articleId, a.createdAt) " +
 			"from UserArticle a " +
 			"where a.id.userId = :userId " +
 			"and (:cursorCreatedAt is null or (a.createdAt < :cursorCreatedAt or (a.createdAt = :cursorCreatedAt and a.id.articleId < :cursorArticleId))) " +
@@ -22,9 +22,9 @@ public interface UserArticleRepository extends JpaRepository<UserArticle, UserAr
 	                                                   @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
 	                                                   @Param("cursorArticleId") String cursorArticleId,
 	                                                   org.springframework.data.domain.Pageable pageable);
-	
+
 	// Ascending (oldest first) cursor query
-	@Query("select new ArticleCursorDto(a.id.articleId, a.createdAt) " +
+	@Query("select new com.teambind.activityserver.domain.board.dto.ArticleCursorDto(a.id.articleId, a.createdAt) " +
 			"from UserArticle a " +
 			"where a.id.userId = :userId " +
 			"and (:cursorCreatedAt is null or (a.createdAt > :cursorCreatedAt or (a.createdAt = :cursorCreatedAt and a.id.articleId > :cursorArticleId))) " +

@@ -15,7 +15,7 @@ public class ProfileEventConsumer {
 	private final ObjectMapper objectMapper;
 	private final UserBoardActivitiesCountRepository userBoardActivitiesCountRepository;
 	
-	@KafkaListener(topics = "profile-create-request", groupId = "activity-consumer-group")
+	@KafkaListener(topics = "user-created", groupId = "activity-consumer-group")
 	public void createUserProfile(String message) throws JsonProcessingException {
 		ProfileCreateRequest request = objectMapper.readValue(message, ProfileCreateRequest.class);
 		userBoardActivitiesCountRepository.save(new UserBoardActivitiesCount(request.getUserId()));
