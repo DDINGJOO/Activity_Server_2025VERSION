@@ -28,12 +28,12 @@ CREATE TABLE IF NOT EXISTS user_article
 -- user_comment
 CREATE TABLE IF NOT EXISTS user_comment
 (
-    user_id    VARCHAR(255) NOT NULL,
-    article_id VARCHAR(255) NOT NULL,
-    title          VARCHAR(255),                        -- 추가: 엔티티에서 사용 (title)
-    version        INT NOT NULL DEFAULT 0,              -- 추가: 엔티티에서 사용 (version)
-    created_at DATETIME     NULL,
-    article_synced BOOLEAN      DEFAULT FALSE NOT NULL, -- 보강: NOT NULL + DEFAULT
+    user_id        VARCHAR(255) NOT NULL,
+    article_id     VARCHAR(255) NOT NULL,
+    title          VARCHAR(255),                                 -- 추가: 엔티티에서 사용 (title)
+    version        INT          NOT NULL DEFAULT 0,              -- 추가: 엔티티에서 사용 (version)
+    created_at     DATETIME     NULL,
+    article_synced BOOLEAN               DEFAULT FALSE NOT NULL, -- 보강: NOT NULL + DEFAULT
     PRIMARY KEY (user_id, article_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -42,12 +42,12 @@ CREATE TABLE IF NOT EXISTS user_comment
 -- user_like
 CREATE TABLE IF NOT EXISTS user_like
 (
-    user_id    VARCHAR(255) NOT NULL,
-    article_id VARCHAR(255) NOT NULL,
-    title          VARCHAR(255),                        -- 추가: 엔티티에서 사용 (title)
-    version        INT NOT NULL DEFAULT 0,              -- 추가: 엔티티에서 사용 (version)
-    created_at DATETIME     NULL,
-    article_synced BOOLEAN      DEFAULT FALSE NOT NULL, -- 보강: NOT NULL + DEFAULT
+    user_id        VARCHAR(255) NOT NULL,
+    article_id     VARCHAR(255) NOT NULL,
+    title          VARCHAR(255),                                 -- 추가: 엔티티에서 사용 (title)
+    version        INT          NOT NULL DEFAULT 0,              -- 추가: 엔티티에서 사용 (version)
+    created_at     DATETIME     NULL,
+    article_synced BOOLEAN               DEFAULT FALSE NOT NULL, -- 보강: NOT NULL + DEFAULT
     PRIMARY KEY (user_id, article_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

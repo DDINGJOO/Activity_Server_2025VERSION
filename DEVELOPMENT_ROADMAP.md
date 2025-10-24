@@ -85,10 +85,16 @@
 
 ```java
 // ArticleEventConsumer.java:32-37
-if (article.isEmpty()) {
-    userArticleRepository.save(new UserArticle(...));
-    userBoardActivitiesCountRepository.findById(request.getWriterId())
-        .ifPresent(UserBoardActivitiesCount::increaseArticleCount);
+if(article.isEmpty()){
+		userArticleRepository.
+
+save(new UserArticle(...));
+		userBoardActivitiesCountRepository.
+
+findById(request.getWriterId())
+		.
+
+ifPresent(UserBoardActivitiesCount::increaseArticleCount);
 }
 ```
 
@@ -99,9 +105,10 @@ if (article.isEmpty()) {
 **해결 방안:**
 
 ```java
+
 @Transactional
 public void increaseArticleRequest(String message) {
-    // 전체 로직을 단일 트랜잭션으로 묶기
+	// 전체 로직을 단일 트랜잭션으로 묶기
 }
 ```
 
@@ -135,9 +142,15 @@ public void increaseArticleRequest(String message) {
 
 ```java
 // FeedController.java:69-71
-if ("like".equalsIgnoreCase(category) &&
-    (viewerId == null || !viewerId.equals(targetUserId))) {
-    return ResponseEntity.status(403).build();
+if("like".equalsIgnoreCase(category) &&
+		(viewerId ==null||!viewerId.
+
+equals(targetUserId))){
+		return ResponseEntity.
+
+status(403).
+
+build();
 }
 ```
 
@@ -162,8 +175,10 @@ if ("like".equalsIgnoreCase(category) &&
 
 ```java
 // 60분마다만 DB 조회
-if (emptyCheckCounter >= 60) {
-    dbArticleIds = findUnsyncedArticleIdsFromDB();
+if(emptyCheckCounter >=60){
+dbArticleIds =
+
+findUnsyncedArticleIdsFromDB();
 }
 ```
 
@@ -174,7 +189,11 @@ if (emptyCheckCounter >= 60) {
 
 ```java
 // 100개씩 배치 조회
-for (int i = 0; i < articleIds.size(); i += 100) {
+for(int i = 0; i <articleIds.
+
+size();
+
+i +=100){
 ```
 
 - 설정 파일로 외부화 필요
@@ -197,7 +216,9 @@ POST /api/board/feed  (통계 조회)  ❌
 ```java
 // FeedResponse.java - 두 가지 용도로 사용
 new FeedResponse(totals, isOwner);     // POST 요청
-new FeedResponse(articleIds, cursor);  // GET 요청
+new
+
+FeedResponse(articleIds, cursor);  // GET 요청
 ```
 
 - 단일 DTO를 다른 용도로 재사용 → 명확성 저하
@@ -208,10 +229,10 @@ new FeedResponse(articleIds, cursor);  // GET 요청
 
 ```sql
 -- user_article 테이블
-CREATE INDEX idx_user_created ON user_article(user_id, created_at DESC);
+CREATE INDEX idx_user_created ON user_article (user_id, created_at DESC);
 
 -- user_board_activities_count 테이블
-CREATE INDEX idx_updated_at ON user_board_activities_count(updated_at);
+CREATE INDEX idx_updated_at ON user_board_activities_count (updated_at);
 ```
 
 **N+1 문제 잠재적 위험:**
@@ -219,10 +240,14 @@ CREATE INDEX idx_updated_at ON user_board_activities_count(updated_at);
 ```java
 // ArticleSyncScheduler.java:165-180
 List<UserComment> comments = userCommentRepository.findAllByIdArticleId(dto.getArticleId());
-comments.forEach(comment -> { ... });
+comments.
+
+forEach(comment ->{...});
 
 List<UserLike> likes = userLikeRepository.findAllByIdArticleId(dto.getArticleId());
-likes.forEach(like -> { ... });
+likes.
+
+forEach(like ->{...});
 ```
 
 - Batch Update 고려 필요
@@ -322,19 +347,31 @@ likes.forEach(like -> { ... });
 
 ```java
 // CommentEventConsumer.java:32-48
-userCommentRepository.findById(key).ifPresentOrElse(
-    existing -> {},  // 중복 무시
-    () -> {
-        userCommentRepository.save(new UserComment(key));  // ①
+userCommentRepository.findById(key).
 
-        if (!userArticleRepository.existsById(articleKey)) {  // ②
-            articleSyncQueue.addMissingArticle(request.getArticleId());
-        }
+ifPresentOrElse(
+		existing ->{},  // 중복 무시
+		()->{
+		userCommentRepository.
 
-        userBoardActivitiesCountRepository.findById(request.getWriterId())
-            .ifPresent(UserBoardActivitiesCount::increaseCommentCount);  // ③
+save(new UserComment(key));  // ①
+		
+		if(!userArticleRepository.
+
+existsById(articleKey)){  // ②
+		articleSyncQueue.
+
+addMissingArticle(request.getArticleId());
+		}
+		
+		userBoardActivitiesCountRepository.
+
+findById(request.getWriterId())
+		.
+
+ifPresent(UserBoardActivitiesCount::increaseCommentCount);  // ③
     }
-);
+		    );
 ```
 
 - ①②③ 각 작업이 별도 커밋 → 부분 실패 시 데이터 불일치
@@ -344,22 +381,24 @@ userCommentRepository.findById(key).ifPresentOrElse(
 **1. 트랜잭션 경계 명확화**
 
 ```java
+
 @Transactional
 public void increaseCommentRequest(String message) throws JsonProcessingException {
-    // 전체 로직을 단일 트랜잭션으로 묶기
-    // 실패 시 전체 롤백
+	// 전체 로직을 단일 트랜잭션으로 묶기
+	// 실패 시 전체 롤백
 }
 ```
 
 **2. 낙관적 락 도입**
 
 ```java
+
 @Entity
 public class UserBoardActivitiesCount {
-    @Version
-    private Long version;
-
-    // Hibernate가 자동으로 동시성 제어
+	@Version
+	private Long version;
+	
+	// Hibernate가 자동으로 동시성 제어
 }
 ```
 
@@ -367,15 +406,19 @@ public class UserBoardActivitiesCount {
 
 ```java
 public class CommentCreatedEvent {
-    private String eventId;  // UUID
-    private Long timestamp;
+	private String eventId;  // UUID
+	private Long timestamp;
 }
 
 // 중복 이벤트 필터링
-if (eventRepository.existsByEventId(event.getEventId())) {
-    log.warn("중복 이벤트 무시: {}", event.getEventId());
-    return;
-}
+if(eventRepository.
+
+existsByEventId(event.getEventId())){
+		log.
+
+warn("중복 이벤트 무시: {}",event.getEventId());
+		return;
+		}
 ```
 
 ---
@@ -403,26 +446,28 @@ spring:
 **DLQ 처리 Consumer:**
 
 ```java
+
 @KafkaListener(topics = "activity-dlq", groupId = "dlq-handler-group")
 public void handleDeadLetterQueue(String message) {
-    // 1. 에러 분석 및 로깅
-    // 2. 관리자 알림
-    // 3. 수동 재처리 대기열에 추가
+	// 1. 에러 분석 및 로깅
+	// 2. 관리자 알림
+	// 3. 수동 재처리 대기열에 추가
 }
 ```
 
 #### Circuit Breaker (Article Client)
 
 ```java
+
 @CircuitBreaker(name = "articleClient", fallbackMethod = "getArticlesByIdsFallback")
 public List<ArticleDto> getArticlesByIds(List<String> articleIds) {
-    // WebClient 호출
+	// WebClient 호출
 }
 
 private List<ArticleDto> getArticlesByIdsFallback(List<String> articleIds, Exception e) {
-    log.error("Article 서버 호출 실패, 재시도 큐에 추가", e);
-    articleIds.forEach(articleSyncQueue::addMissingArticle);
-    return Collections.emptyList();
+	log.error("Article 서버 호출 실패, 재시도 큐에 추가", e);
+	articleIds.forEach(articleSyncQueue::addMissingArticle);
+	return Collections.emptyList();
 }
 ```
 
@@ -435,60 +480,63 @@ private List<ArticleDto> getArticlesByIdsFallback(List<String> articleIds, Excep
 **Repository 테스트:**
 
 ```java
+
 @DataJpaTest
 class UserArticleRepositoryTest {
-    @Autowired
-    private UserArticleRepository repository;
-
-    @Test
-    void 커서_페이징_최신순_조회() {
-        // Given: 테스트 데이터 삽입
-        // When: fetchDescByUserIdWithCursor 호출
-        // Then: 정렬 순서 및 커서 검증
-    }
+	@Autowired
+	private UserArticleRepository repository;
+	
+	@Test
+	void 커서_페이징_최신순_조회() {
+		// Given: 테스트 데이터 삽입
+		// When: fetchDescByUserIdWithCursor 호출
+		// Then: 정렬 순서 및 커서 검증
+	}
 }
 ```
 
 **Service 테스트:**
 
 ```java
+
 @ExtendWith(MockitoExtension.class)
 class FeedDomainServiceTest {
-    @Mock
-    private UserArticleRepository articleRepository;
-
-    @InjectMocks
-    private FeedDomainService service;
-
-    @Test
-    void 집계_테이블_우선_조회() {
-        // Given: Mock 데이터 설정
-        // When: computeTotals 호출
-        // Then: 집계 테이블 우선 사용 검증
-    }
+	@Mock
+	private UserArticleRepository articleRepository;
+	
+	@InjectMocks
+	private FeedDomainService service;
+	
+	@Test
+	void 집계_테이블_우선_조회() {
+		// Given: Mock 데이터 설정
+		// When: computeTotals 호출
+		// Then: 집계 테이블 우선 사용 검증
+	}
 }
 ```
 
 #### 통합 테스트 (Testcontainers)
 
 ```java
+
 @SpringBootTest
 @Testcontainers
 class ArticleSyncIntegrationTest {
-    @Container
-    static MariaDBContainer mariaDB = new MariaDBContainer("mariadb:11");
-
-    @Container
-    static KafkaContainer kafka = new KafkaContainer(
-        DockerImageName.parse("confluentinc/cp-kafka:7.5.0")
-    );
-
-    @Test
-    void 게시글_생성_이벤트_처리_통합_테스트() {
-        // Given: Kafka에 article-created 이벤트 발행
-        // When: Consumer가 이벤트 처리
-        // Then: DB에 데이터 저장 및 통계 업데이트 검증
-    }
+	@Container
+	static MariaDBContainer mariaDB = new MariaDBContainer("mariadb:11");
+	
+	@Container
+	static KafkaContainer kafka = new KafkaContainer(
+			DockerImageName.parse("confluentinc/cp-kafka:7.5.0")
+	);
+	
+	@Test
+	void 게시글_생성_이벤트_처리_통합_테스트() {
+		// Given: Kafka에 article-created 이벤트 발행
+		// When: Consumer가 이벤트 처리
+		// Then: DB에 데이터 저장 및 통계 업데이트 검증
+	}
 }
 ```
 
@@ -509,47 +557,49 @@ class ArticleSyncIntegrationTest {
 **헤더 검증 필터:**
 
 ```java
+
 @Component
 public class AuthHeaderFilter extends OncePerRequestFilter {
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws IOException, ServletException {
-
-        // API Gateway 또는 Auth Server에서 전달한 사용자 ID
-        String userId = request.getHeader("X-User-Id");
-
-        if (userId != null) {
-            // SecurityContext에 사용자 정보 설정
-            UserPrincipal principal = new UserPrincipal(userId);
-            Authentication auth = new PreAuthenticatedAuthenticationToken(
-                principal, null, Collections.emptyList()
-            );
-            SecurityContextHolder.getContext().setAuthentication(auth);
-        }
-
-        filterChain.doFilter(request, response);
-    }
+	
+	@Override
+	protected void doFilterInternal(HttpServletRequest request,
+	                                HttpServletResponse response,
+	                                FilterChain filterChain) throws IOException, ServletException {
+		
+		// API Gateway 또는 Auth Server에서 전달한 사용자 ID
+		String userId = request.getHeader("X-User-Id");
+		
+		if (userId != null) {
+			// SecurityContext에 사용자 정보 설정
+			UserPrincipal principal = new UserPrincipal(userId);
+			Authentication auth = new PreAuthenticatedAuthenticationToken(
+					principal, null, Collections.emptyList()
+			);
+			SecurityContextHolder.getContext().setAuthentication(auth);
+		}
+		
+		filterChain.doFilter(request, response);
+	}
 }
 ```
 
 **Controller 수정:**
 
 ```java
+
 @GetMapping("/feed/{category}")
 public ResponseEntity<FeedResponse> getCategoryFeed(
-        @PathVariable String category,
-        @RequestHeader(value = "X-User-Id", required = false) String viewerId,
-        @RequestParam String targetUserId,
+		@PathVariable String category,
+		@RequestHeader(value = "X-User-Id", required = false) String viewerId,
+		@RequestParam String targetUserId,
         ...
 ) {
-    // viewerId는 API Gateway에서 검증된 값
-    // 권한 검증 로직
-    if ("like".equalsIgnoreCase(category) && !targetUserId.equals(viewerId)) {
-        return ResponseEntity.status(403).build();
-    }
-    // ...
+	// viewerId는 API Gateway에서 검증된 값
+	// 권한 검증 로직
+	if ("like".equalsIgnoreCase(category) && !targetUserId.equals(viewerId)) {
+		return ResponseEntity.status(403).build();
+	}
+	// ...
 }
 ```
 
@@ -561,16 +611,16 @@ spring:
   cloud:
     gateway:
       routes:
-      - id: activity-service
-        uri: http://activity-server:8080
-        predicates:
-        - Path=/api/board/**
-        filters:
-        - name: JwtAuthenticationFilter  # JWT 검증
-        - name: AddRequestHeader          # 검증된 userId 헤더 추가
-          args:
-            name: X-User-Id
-            value: "#{claims['sub']}"
+        - id: activity-service
+          uri: http://activity-server:8080
+          predicates:
+            - Path=/api/board/**
+          filters:
+            - name: JwtAuthenticationFilter  # JWT 검증
+            - name: AddRequestHeader          # 검증된 userId 헤더 추가
+              args:
+                name: X-User-Id
+                value: "#{claims['sub']}"
 ```
 
 ---
@@ -582,29 +632,30 @@ spring:
 **메트릭 수집:**
 
 ```java
+
 @Component
 public class ActivityMetrics {
-    private final Counter articleCreatedCounter;
-    private final Timer syncTimer;
-
-    public ActivityMetrics(MeterRegistry registry) {
-        this.articleCreatedCounter = Counter.builder("activity.article.created")
-            .description("게시글 생성 이벤트 수")
-            .tag("type", "article")
-            .register(registry);
-
-        this.syncTimer = Timer.builder("activity.sync.duration")
-            .description("아티클 동기화 소요 시간")
-            .register(registry);
-    }
-
-    public void recordArticleCreated() {
-        articleCreatedCounter.increment();
-    }
-
-    public void recordSyncDuration(Runnable task) {
-        syncTimer.record(task);
-    }
+	private final Counter articleCreatedCounter;
+	private final Timer syncTimer;
+	
+	public ActivityMetrics(MeterRegistry registry) {
+		this.articleCreatedCounter = Counter.builder("activity.article.created")
+				.description("게시글 생성 이벤트 수")
+				.tag("type", "article")
+				.register(registry);
+		
+		this.syncTimer = Timer.builder("activity.sync.duration")
+				.description("아티클 동기화 소요 시간")
+				.register(registry);
+	}
+	
+	public void recordArticleCreated() {
+		articleCreatedCounter.increment();
+	}
+	
+	public void recordSyncDuration(Runnable task) {
+		syncTimer.record(task);
+	}
 }
 ```
 
@@ -699,27 +750,27 @@ paths:
 ```sql
 -- 1. 사용자별 최신 활동 조회 (피드)
 CREATE INDEX idx_user_article_created
-ON user_article(user_id, created_at DESC, article_id DESC);
+    ON user_article (user_id, created_at DESC, article_id DESC);
 
 CREATE INDEX idx_user_comment_created
-ON user_comment(user_id, created_at DESC, article_id DESC);
+    ON user_comment (user_id, created_at DESC, article_id DESC);
 
 CREATE INDEX idx_user_like_created
-ON user_like(user_id, created_at DESC, article_id DESC);
+    ON user_like (user_id, created_at DESC, article_id DESC);
 
 -- 2. 아티클별 활동 조회 (통계)
 CREATE INDEX idx_article_comments
-ON user_comment(article_id, created_at DESC);
+    ON user_comment (article_id, created_at DESC);
 
 CREATE INDEX idx_article_likes
-ON user_like(article_id, created_at DESC);
+    ON user_like (article_id, created_at DESC);
 
 -- 3. 통계 테이블 갱신 추적
 ALTER TABLE user_board_activities_count
-ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+    ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 CREATE INDEX idx_activities_updated
-ON user_board_activities_count(updated_at);
+    ON user_board_activities_count (updated_at);
 ```
 
 #### 쿼리 최적화
@@ -728,16 +779,18 @@ ON user_board_activities_count(updated_at);
 
 ```java
 // 개선 전: N번의 UPDATE
-comments.forEach(comment -> {
-    comment.setTitle(dto.getTitle());
-    // JPA가 각각 UPDATE 실행
-});
+comments.forEach(comment ->{
+		comment.
+
+setTitle(dto.getTitle());
+		// JPA가 각각 UPDATE 실행
+		});
 
 // 개선 후: 1번의 BATCH UPDATE
 @Modifying
 @Query("UPDATE UserComment c SET c.title = :title, c.version = :version, " +
-       "c.createdAt = :createdAt, c.articleSynced = true " +
-       "WHERE c.id.articleId = :articleId")
+		"c.createdAt = :createdAt, c.articleSynced = true " +
+		"WHERE c.id.articleId = :articleId")
 int batchUpdateByArticleId(@Param("articleId") String articleId,
                            @Param("title") String title,
                            @Param("version") Integer version,
@@ -747,9 +800,10 @@ int batchUpdateByArticleId(@Param("articleId") String articleId,
 **Read-Only 트랜잭션:**
 
 ```java
+
 @Transactional(readOnly = true)
 public Map<String, Long> computeTotals(String targetUserId, List<String> categories) {
-    // 읽기 전용 최적화 (Dirty Checking 비활성화)
+	// 읽기 전용 최적화 (Dirty Checking 비활성화)
 }
 ```
 
@@ -798,17 +852,18 @@ activity-config/
 #### Feature Flag
 
 ```java
+
 @Component
 public class FeatureFlags {
-    @Value("${feature.realtime-broadcast.enabled:false}")
-    private boolean realtimeBroadcastEnabled;
-
-    @Value("${feature.graphql-api.enabled:false}")
-    private boolean graphqlApiEnabled;
-
-    public boolean isRealtimeBroadcastEnabled() {
-        return realtimeBroadcastEnabled;
-    }
+	@Value("${feature.realtime-broadcast.enabled:false}")
+	private boolean realtimeBroadcastEnabled;
+	
+	@Value("${feature.graphql-api.enabled:false}")
+	private boolean graphqlApiEnabled;
+	
+	public boolean isRealtimeBroadcastEnabled() {
+		return realtimeBroadcastEnabled;
+	}
 }
 ```
 
@@ -860,20 +915,23 @@ public class FeatureFlags {
 ```java
 // ArticleEventConsumer, CommentEventConsumer, LikeEventConsumer 모두 유사한 패턴
 userBoardActivitiesCountRepository.findById(userId)
-    .ifPresent(UserBoardActivitiesCount::increaseXxxCount);
+    .
+
+ifPresent(UserBoardActivitiesCount::increaseXxxCount);
 ```
 
 **개선안: 공통 서비스 추출**
 
 ```java
+
 @Service
 public class ActivityCountService {
-
-    @Transactional
-    public void incrementCount(String userId, ActivityType type) {
-        userBoardActivitiesCountRepository.findById(userId)
-            .ifPresent(count -> count.increment(type));
-    }
+	
+	@Transactional
+	public void incrementCount(String userId, ActivityType type) {
+		userBoardActivitiesCountRepository.findById(userId)
+				.ifPresent(count -> count.increment(type));
+	}
 }
 ```
 
@@ -882,11 +940,16 @@ public class ActivityCountService {
 **개선 전:**
 
 ```java
-if (emptyCheckCounter >= 60) {  // 60은 무엇?
-    // ...
-}
+if(emptyCheckCounter >=60){  // 60은 무엇?
+		// ...
+		}
+		
+		for(
+int i = 0; i <articleIds.
 
-for (int i = 0; i < articleIds.size(); i += 100) {  // 100은 무엇?
+size();
+
+i +=100){  // 100은 무엇?
 ```
 
 **개선 후:**
@@ -894,14 +957,14 @@ for (int i = 0; i < articleIds.size(); i += 100) {  // 100은 무엇?
 ```java
 // application.yml
 activity:
-  sync:
-    empty-check-threshold: 60  # 60분
-    batch-size: 100
+sync:
+empty-check-threshold:60  # 60분
+batch-size:100
 
 @ConfigurationProperties(prefix = "activity.sync")
 public class SyncProperties {
-    private final int emptyCheckThreshold = 60;
-    private final int batchSize = 100;
+	private final int emptyCheckThreshold = 60;
+	private final int batchSize = 100;
 }
 ```
 
@@ -953,38 +1016,41 @@ Activity-Server (단일 서비스)
 **Write Model (Command):**
 
 ```java
+
 @Service
 public class ActivityCommandService {
-    public void recordArticleCreated(ArticleCreatedEvent event) {
-        // 쓰기 최적화 DB (MariaDB)
-        // 이벤트 소싱
-    }
+	public void recordArticleCreated(ArticleCreatedEvent event) {
+		// 쓰기 최적화 DB (MariaDB)
+		// 이벤트 소싱
+	}
 }
 ```
 
 **Read Model (Query):**
 
 ```java
+
 @Service
 public class ActivityQueryService {
-    public FeedResponse getUserFeed(String userId, String category) {
-        // 읽기 최적화 DB (Elasticsearch, Cassandra)
-        // 비정규화된 데이터
-    }
+	public FeedResponse getUserFeed(String userId, String category) {
+		// 읽기 최적화 DB (Elasticsearch, Cassandra)
+		// 비정규화된 데이터
+	}
 }
 ```
 
 **이벤트 소싱:**
 
 ```java
+
 @Entity
 public class ActivityEvent {
-    @Id
-    private String eventId;
-    private String aggregateId;  // userId
-    private String eventType;    // ARTICLE_CREATED
-    private String payload;      // JSON
-    private LocalDateTime occurredAt;
+	@Id
+	private String eventId;
+	private String aggregateId;  // userId
+	private String eventType;    // ARTICLE_CREATED
+	private String payload;      // JSON
+	private LocalDateTime occurredAt;
 }
 ```
 
@@ -1030,12 +1096,12 @@ spec:
   minReplicas: 2
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
 ```
 
 **Spot Instance 활용:**
@@ -1063,10 +1129,12 @@ Cold Data (12개월 이상)
 ```sql
 -- 12개월 이상 데이터 아카이빙 (매월 1일 실행)
 INSERT INTO s3_archive
-SELECT * FROM user_article
+SELECT *
+FROM user_article
 WHERE created_at < DATE_SUB(NOW(), INTERVAL 12 MONTH);
 
-DELETE FROM user_article
+DELETE
+FROM user_article
 WHERE created_at < DATE_SUB(NOW(), INTERVAL 12 MONTH);
 ```
 

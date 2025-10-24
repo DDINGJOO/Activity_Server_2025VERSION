@@ -22,7 +22,7 @@ public interface UserArticleRepository extends JpaRepository<UserArticle, UserAr
 	                                                   @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
 	                                                   @Param("cursorArticleId") String cursorArticleId,
 	                                                   org.springframework.data.domain.Pageable pageable);
-
+	
 	// Ascending (oldest first) cursor query
 	@Query("select new com.teambind.activityserver.domain.board.dto.ArticleCursorDto(a.id.articleId, a.createdAt) " +
 			"from UserArticle a " +
