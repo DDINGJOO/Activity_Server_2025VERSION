@@ -3,7 +3,6 @@ package com.teambind.activityserver.messaging.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teambind.activityserver.domain.article.service.ArticleSyncQueue;
-import com.teambind.activityserver.domain.board.entity.UserBoardActivitiesCount;
 import com.teambind.activityserver.domain.board.entity.UserLike;
 import com.teambind.activityserver.domain.board.entity.key.UserArticleKey;
 import com.teambind.activityserver.domain.board.repository.UserArticleRepository;
@@ -27,7 +26,7 @@ public class LikeEventConsumer {
 	public void increaseLikeRequest(String message) throws JsonProcessingException {
 		LikeCreatedEvent request = objectMapper.readValue(message, LikeCreatedEvent.class);
 		UserArticleKey key = new UserArticleKey(request.getLikerId(), request.getArticleId());
-		
+
 		// 1번의 조회로 존재 여부와 데이터 취득을 동시에
 		userLikeRepository.findById(key).ifPresentOrElse(
 				existing -> {
@@ -35,16 +34,19 @@ public class LikeEventConsumer {
 				() -> {
 					// 좋아요 저장 (articleSynced = false)
 					userLikeRepository.save(new UserLike(key));
-					
+
 					// 아티클 정보 없으면 동기화 큐에 추가
 					UserArticleKey articleKey = new UserArticleKey(request.getLikerId(), request.getArticleId());
 					if (!userArticleRepository.existsById(articleKey)) {
 						articleSyncQueue.addMissingArticle(request.getArticleId());
 					}
 					
-					// Dirty Checking 활용 (save 생략 가능)
+					// 명시적 save 호출
 					userBoardActivitiesCountRepository.findById(request.getLikerId())
-							.ifPresent(UserBoardActivitiesCount::increaseLikeCount);
+							.ifPresent(count -> {
+								count.increaseLikeCount();
+								userBoardActivitiesCountRepository.save(count);
+							});
 				}
 		);
 	}
@@ -57,7 +59,10 @@ public class LikeEventConsumer {
 		userLikeRepository.findById(key).ifPresent(like -> {
 			userLikeRepository.delete(like);
 			userBoardActivitiesCountRepository.findById(request.getLikerId())
-					.ifPresent(UserBoardActivitiesCount::decreaseLikeCount);
+					.ifPresent(count -> {
+						count.decreaseLikeCount();
+						userBoardActivitiesCountRepository.save(count);
+					});
 		});
 	}
 }
