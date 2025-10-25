@@ -31,7 +31,9 @@ public class ArticleEventConsumer {
 		Optional<UserArticle> article = userArticleRepository.findById(key);
 		if (article.isEmpty()) {
 			userArticleRepository.save(new UserArticle(key, request.getTitle(), request.getVersion(), request.getCreatedAt()));
-			userBoardActivitiesCountRepository.findById(request.getWriterId()).ifPresent(UserBoardActivitiesCount::increaseArticleCount);
+			UserBoardActivitiesCount userBoardActivitiesCount = userBoardActivitiesCountRepository.findById(request.getWriterId()).orElse(new UserBoardActivitiesCount(request.getWriterId()));
+			userBoardActivitiesCount.increaseArticleCount();
+			userBoardActivitiesCountRepository.save(userBoardActivitiesCount);
 		} else {
 			if (article.get().getVersion() < request.getVersion()) {
 				userArticleRepository.save(new UserArticle(key, request.getTitle(), request.getVersion(), request.getCreatedAt()));

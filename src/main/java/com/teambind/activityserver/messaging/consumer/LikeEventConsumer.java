@@ -43,8 +43,10 @@ public class LikeEventConsumer {
 					}
 					
 					// Dirty Checking 활용 (save 생략 가능)
-					userBoardActivitiesCountRepository.findById(request.getLikerId())
-							.ifPresent(UserBoardActivitiesCount::increaseLikeCount);
+					UserBoardActivitiesCount activitiesCount = userBoardActivitiesCountRepository.findById(request.getLikerId()).orElse(new UserBoardActivitiesCount(request.getLikerId()));
+					activitiesCount.increaseLikeCount();
+					userBoardActivitiesCountRepository.save(activitiesCount);
+
 				}
 		);
 	}

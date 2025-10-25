@@ -43,8 +43,9 @@ public class CommentEventConsumer {
 					}
 					
 					// Dirty Checking 활용 (save 생략 가능)
-					userBoardActivitiesCountRepository.findById(request.getWriterId())
-							.ifPresent(UserBoardActivitiesCount::increaseCommentCount);
+					UserBoardActivitiesCount userBoardActivitiesCount = userBoardActivitiesCountRepository.findById(request.getWriterId()).orElse(new UserBoardActivitiesCount(request.getWriterId()));
+					userBoardActivitiesCount.increaseCommentCount();
+					userBoardActivitiesCountRepository.save(userBoardActivitiesCount);
 				}
 		);
 	}
