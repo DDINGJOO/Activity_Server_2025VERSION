@@ -32,6 +32,7 @@ public class UserArticle {
 	
 	public UserArticle(UserArticleKey key, String title, Long version, LocalDateTime createdAt) {
 		this.id = key;
+		this.title = title;
 		this.version = version.intValue();
 		this.createdAt = createdAt;
 	}
