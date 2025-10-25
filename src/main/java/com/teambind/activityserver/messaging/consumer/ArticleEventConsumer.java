@@ -3,7 +3,6 @@ package com.teambind.activityserver.messaging.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teambind.activityserver.domain.board.entity.UserArticle;
-import com.teambind.activityserver.domain.board.entity.UserBoardActivitiesCount;
 import com.teambind.activityserver.domain.board.entity.key.UserArticleKey;
 import com.teambind.activityserver.domain.board.repository.UserArticleRepository;
 import com.teambind.activityserver.domain.board.repository.UserBoardActivitiesCountRepository;
@@ -27,16 +26,20 @@ public class ArticleEventConsumer {
 	public void increaseArticleRequest(String message) throws JsonProcessingException {
 		ArticleCreatedEvent request = objectMapper.readValue(message, ArticleCreatedEvent.class);
 		UserArticleKey key = new UserArticleKey(request.getWriterId(), request.getArticleId());
-		
+
 		Optional<UserArticle> article = userArticleRepository.findById(key);
 		if (article.isEmpty()) {
 			userArticleRepository.save(new UserArticle(key, request.getTitle(), request.getVersion(), request.getCreatedAt()));
-			UserBoardActivitiesCount userBoardActivitiesCount = userBoardActivitiesCountRepository.findById(request.getWriterId()).orElse(new UserBoardActivitiesCount(request.getWriterId()));
-			userBoardActivitiesCount.increaseArticleCount();
-			userBoardActivitiesCountRepository.save(userBoardActivitiesCount);
+			userBoardActivitiesCountRepository.findById(request.getWriterId()).ifPresent(count -> {
+				count.increaseArticleCount();
+				userBoardActivitiesCountRepository.save(count);
+			});
 		} else {
 			if (article.get().getVersion() < request.getVersion()) {
-				userArticleRepository.save(new UserArticle(key, request.getTitle(), request.getVersion(), request.getCreatedAt()));
+				UserArticle existingArticle = article.get();
+				existingArticle.setTitle(request.getTitle());
+				existingArticle.setVersion(request.getVersion().intValue());
+				userArticleRepository.save(existingArticle);
 			}
 		}
 		
@@ -44,6 +47,7 @@ public class ArticleEventConsumer {
 	}
 	
 	@KafkaListener(topics = "article-deleted", groupId = "activity-consumer-group")
+	@Transactional
 	public void decreaseArticleRequest(String message) throws JsonProcessingException {
 		ArticleCreatedEvent request = objectMapper.readValue(message, ArticleCreatedEvent.class);
 		UserArticleKey key = new UserArticleKey(request.getWriterId(), request.getArticleId());
@@ -51,7 +55,10 @@ public class ArticleEventConsumer {
 		userArticleRepository.findById(key).ifPresent(article -> {
 			userArticleRepository.delete(article);
 			userBoardActivitiesCountRepository.findById(request.getWriterId())
-					.ifPresent(UserBoardActivitiesCount::decreaseArticleCount);
+					.ifPresent(count -> {
+						count.decreaseArticleCount();
+						userBoardActivitiesCountRepository.save(count);
+					});
 		});
 	}
 }
