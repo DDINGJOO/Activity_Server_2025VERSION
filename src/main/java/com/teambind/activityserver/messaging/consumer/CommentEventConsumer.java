@@ -32,8 +32,10 @@ public class CommentEventConsumer {
 				existing -> {
 				},
 				() -> {
-					// 댓글 저장 (articleSynced = false)
-					userCommentRepository.save(new UserComment(key));
+					// 댓글 저장 (articleSynced = false, createdAt 설정)
+					UserComment comment = new UserComment(key);
+					comment.setCreatedAt(request.getCreatedAt());
+					userCommentRepository.save(comment);
 
 					// 아티클 정보 없으면 동기화 큐에 추가
 					UserArticleKey articleKey = new UserArticleKey(request.getWriterId(), request.getArticleId());
