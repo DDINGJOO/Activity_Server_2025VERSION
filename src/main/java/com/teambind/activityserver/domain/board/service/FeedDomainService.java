@@ -115,8 +115,8 @@ public class FeedDomainService {
 		
 		// 정렬 및 중복 제거 (안정성 확보)
 		Comparator<ArticleCursorDto> comparator = Comparator
-				.comparing(ArticleCursorDto::createdAt)
-				.thenComparing(ArticleCursorDto::articleId);
+				.comparing(ArticleCursorDto::createdAt, Comparator.nullsLast(Comparator.naturalOrder()))
+				.thenComparing(ArticleCursorDto::articleId, Comparator.nullsLast(Comparator.naturalOrder()));
 		if (newest) comparator = comparator.reversed();
 		
 		List<ArticleCursorDto> sorted = new ArrayList<>(fetched);

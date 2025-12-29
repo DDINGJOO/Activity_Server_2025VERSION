@@ -32,8 +32,10 @@ public class LikeEventConsumer {
 				existing -> {
 				},
 				() -> {
-					// 좋아요 저장 (articleSynced = false)
-					userLikeRepository.save(new UserLike(key));
+					// 좋아요 저장 (articleSynced = false, createdAt 설정)
+					UserLike like = new UserLike(key);
+					like.setCreatedAt(request.getCreatedAt());
+					userLikeRepository.save(like);
 
 					// 아티클 정보 없으면 동기화 큐에 추가
 					UserArticleKey articleKey = new UserArticleKey(request.getLikerId(), request.getArticleId());
